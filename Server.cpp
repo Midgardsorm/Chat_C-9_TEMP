@@ -1,14 +1,14 @@
 #include <iostream>
-#include <process.h>							//dla w¹tków
-#include <winsock2.h>							//dla socketów + ws2_32.lib dodany do projektu
-#include <conio.h>								//dla getch()
+#include <process.h>						//dla w¹tków
+#include <winsock2.h>						//dla socketów + ws2_32.lib dodany do projektu
+#include <conio.h>							//dla getch()
 
 
-class sendFlag									//ustawia flagê podaj¹c¹, czy wywo³aæ w¹tek wysy³aj¹cy
-{												//utworzony dynamicznie bêdzie wspóldzielony miêdzy g³ównym w¹tkiem wysy³aj¹cym a nas³uchuj¹cym
+class sendFlag								//ustawia flagê podaj¹c¹, czy wywo³aæ w¹tek wysy³aj¹cy
+{											//utworzony dynamicznie bêdzie wspóldzielony miêdzy g³ównym w¹tkiem wysy³aj¹cym a nas³uchuj¹cym
 private:
-	bool toSend;								//jesli przyjdzie jakaœ wiadomoœæ, w¹tek nas³uchuj¹cy ustawi t¹ zmienn¹ na wartoœæ true
-public:											//a po wys³aniu do wszystkich wiadomoœci ustawi ponownie na false
+	bool toSend;							//jesli przyjdzie jakaœ wiadomoœæ, w¹tek nas³uchuj¹cy ustawi t¹ zmienn¹ na wartoœæ true
+public:										//a po wys³aniu do wszystkich wiadomoœci ustawi ponownie na false
 	sendFlag()
 		: toSend(false)
 	{
@@ -55,7 +55,7 @@ int main()
 
 
 	int buffsize = 1000;
-	char* buffer = new char[buffsize];											//bufor przetrzymuj¹cy wiadomoœæ
+	char* buffer = new char[buffsize];							//bufor przetrzymuj¹cy wiadomoœæ
 
 
 	//inicjalizacja winsocka
@@ -67,9 +67,9 @@ int main()
 
 
 	//watki
-	_beginthread(isSomeoneThere, 0, NULL);										//w¹tek nas³uchuj¹cy nowych u¿ytkowników
-	_beginthread(listenForMsg, 0, NULL);										//nas³uchuje wiadomoœci od pod³¹czonych klientów
-	_beginthread(sendMsg, 0, NULL);												//wysy³a wiadomoœæ do klientów
+	_beginthread(isSomeoneThere, 0, NULL);						//w¹tek nas³uchuj¹cy nowych u¿ytkowników
+	_beginthread(listenForMsg, 0, NULL);						//nas³uchuje wiadomoœci od pod³¹czonych klientów
+	_beginthread(sendMsg, 0, NULL);								//wysy³a wiadomoœæ do klientów
 
 
 
