@@ -20,15 +20,6 @@ public:											//a po wys³aniu do wszystkich wiadomoœci ustawi ponownie na fa
 	}
 };
 
-void isSomeoneThere(void * Args)
-{
-	do {
-
-	} while (1);
-
-	_endthread();
-}
-
 void listenForMsg(void * buffer)
 {
 	do {
@@ -37,10 +28,10 @@ void listenForMsg(void * buffer)
 		{
 			bytesRecv = recv(mainSocket, reinterpret_cast<char*>(buffer), 1000, 0);
 		}
-		std::cout << "Client: " << reinterpret_cast<char*>(buffer) << "\n";	
+		std::cout << "Server: " << reinterpret_cast<char*>(buffer) << "\n";
 		Sleep(1000);
 	} while (1);
-	
+
 	_endthread();
 }
 
@@ -61,15 +52,13 @@ void sendMsg(void * buffer)
 
 int main()
 {
-	
-
 
 	int buffsize = 1000;
-	char* buffer = new char[buffsize];										//bufor przetrzymuj¹cy wiadomoœæ
+	char* buffer = new char[buffsize];											//bufor przetrzymuj¹cy wiadomoœæ
 
 	
 	//inicjalizacja winsocka
-	WSADATA wsaData;															
+	WSADATA wsaData;
 
 	int result = WSAStartup(MAKEWORD(2, 2), &wsaData);
 	if (result != NO_ERROR)
@@ -78,14 +67,14 @@ int main()
 	}
 
 	//inicjalizacja gniazda
-	mainSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);			
+	mainSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (mainSocket == INVALID_SOCKET)
 	{
-		std::cout << "Error creating socket: %ld\n" << WSAGetLastError();
+		printf("Error creating socket: %ld\n", WSAGetLastError());
 		WSACleanup();
 		return 1;
 	}
-
+	
 	//podanie ip i portu
 	sockaddr_in service;
 	memset(&service, 0, sizeof(service));
@@ -93,45 +82,28 @@ int main()
 	service.sin_addr.s_addr = inet_addr("127.0.0.1");
 	service.sin_port = htons(27015);
 
-	//bindowanie adresu i portu do gniazda
-	if (bind(mainSocket, (SOCKADDR *)& service, sizeof(service)) == SOCKET_ERROR)
+	//pod³¹czanie do serwera
+	if (connect(mainSocket, (SOCKADDR *)& service, sizeof(service)) == SOCKET_ERROR)
 	{
-		std::cout << "bind() failed.\n";
-		closesocket(mainSocket);
+		printf("Failed to connect.\n");
+		WSACleanup();
 		return 1;
 	}
 
-	//w³¹czenie funkcji nas³uchowej
-	if (listen(mainSocket, 1) == SOCKET_ERROR)
-		std::cout << "Error listening on socket.\n";
-
-	//pod³¹czenie klienta i nas³uchiwanie
-	SOCKET acceptSocket = SOCKET_ERROR;
-	std::cout << "Waiting for a client to connect...\n";
-
-	while (acceptSocket == SOCKET_ERROR)
-	{
-		acceptSocket = accept(mainSocket, NULL, NULL);
-	}
-
-	std::cout << "Client connected.\n";
-	mainSocket = acceptSocket;
-
 	//
 	
-
 	//watki
 	
-	_beginthread(isSomeoneThere, 0, NULL);									//w¹tek nas³uchuj¹cy nowych u¿ytkowników
-	_beginthread(listenForMsg, 0, buffer);									//nas³uchuje wiadomoœci od pod³¹czonych klientów
-	HANDLE watek = (HANDLE ) _beginthread(sendMsg, 0, buffer);				//wysy³a wiadomoœæ do klientów
+	_beginthread(listenForMsg, 0, buffer);										//nas³uchuje wiadomoœci od pod³¹czonych klientów
+	HANDLE watek = (HANDLE)_beginthread(sendMsg, 0, buffer);					//wysy³a wiadomoœæ do klientów
 
-	WaitForSingleObject(watek, INFINITE);									//dopoki serwer nie zadecyduje o wylaczeniu, poprzez wyslanie '#'
-
+	WaitForSingleObject(watek, INFINITE);										//dopoki klient nie zadecyduje o wylaczeniu, poprzez wyslanie '#'
+	
 	delete[] buffer;
 	buffer = 0;
 
 	_getch();
+
 
 	return 0;
 }
