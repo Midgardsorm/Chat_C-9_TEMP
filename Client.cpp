@@ -5,7 +5,7 @@
 #include <process.h>
 #include <winsock2.h>
 
-SOCKET mainSocket;
+
 
 class Data {
 public:
