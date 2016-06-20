@@ -1,61 +1,38 @@
-#define WIN32_LEAN_AND_MEAN						//przy u¿yciu windows.h wyrzucamy windows socketes, by unikn¹æ k³ótni z winsock2
+#define WIN32_LEAN_AND_MEAN
 #define _WINSOCK_DEPRECATED_NO_WARNINGS 1
 
 #include <iostream>
-#include <process.h>							//dla w¹tków
-#include <winsock2.h>							//dla socketów + ws2_32.lib dodany do projektu
-#include <conio.h>								//dla getch()
+#include <process.h>
+#include <winsock2.h>
 
 SOCKET mainSocket;
 
-class sendFlag									//ustawia flagê podaj¹c¹, czy wywo³aæ w¹tek wysy³aj¹cy
-{												//utworzony dynamicznie bêdzie wspóldzielony miêdzy g³ównym w¹tkiem wysy³aj¹cym a nas³uchuj¹cym
-private:
-	bool toSend;								//jesli przyjdzie jakaœ wiadomoœæ, w¹tek nas³uchuj¹cy ustawi t¹ zmienn¹ na wartoœæ true
-public:											//a po wys³aniu do wszystkich wiadomoœci ustawi ponownie na false
-	sendFlag()
-		: toSend(false)
-	{
-
-	}
+class Data {
+public:
+	SOCKET mainSocket;
+	char buffer[1000];
 };
 
-void listenForMsg(void * buffer)
+
+void listenForMsg(void * mainData)
 {
 	do {
 		int bytesRecv = SOCKET_ERROR;
-		while (bytesRecv == SOCKET_ERROR)		//pêtla nas³uchuj¹ca wiadomoœci
+		Data *someData = reinterpret_cast<Data*>(mainData);
+		//petla nasluchujaca wiadomoœci
+		while (bytesRecv == SOCKET_ERROR)
 		{
-			bytesRecv = recv(mainSocket, reinterpret_cast<char*>(buffer), 1000, 0);
+			bytesRecv = recv(someData->mainSocket, someData->buffer, 1000, 0);
 		}
-		std::cout << "Server: " << reinterpret_cast<char*>(buffer) << "\n";
-		Sleep(1000);
+		std::cout << "Server: " << someData->buffer << "\n";
 	} while (1);
-
-	_endthread();
-}
-
-void sendMsg(void * buffer)
-{
-
-
-	do {
-		std::cin.getline(reinterpret_cast<char*>(buffer), 1000);
-		send(mainSocket, reinterpret_cast<char*>(buffer), 1000, 0);
-	} while (*reinterpret_cast<char*>(buffer) != '#');
-
-	std::cout << "Ending trasmission ... \n";
-
 
 	_endthread();
 }
 
 int main()
 {
-
-	int buffsize = 1000;
-	char* buffer = new char[buffsize];											//bufor przetrzymuj¹cy wiadomoœæ
-
+	Data* mainData = new Data;
 	
 	//inicjalizacja winsocka
 	WSADATA wsaData;
@@ -67,10 +44,10 @@ int main()
 	}
 
 	//inicjalizacja gniazda
-	mainSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-	if (mainSocket == INVALID_SOCKET)
+	mainData->mainSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+	if (mainData->mainSocket == INVALID_SOCKET)
 	{
-		printf("Error creating socket: %ld\n", WSAGetLastError());
+		std::cout << "Error creating socket: %ld\n" << WSAGetLastError();
 		WSACleanup();
 		return 1;
 	}
@@ -82,28 +59,31 @@ int main()
 	service.sin_addr.s_addr = inet_addr("127.0.0.1");
 	service.sin_port = htons(27015);
 
-	//pod³¹czanie do serwera
-	if (connect(mainSocket, (SOCKADDR *)& service, sizeof(service)) == SOCKET_ERROR)
+	//podlaczanie do serwera
+	int connected = connect(mainData->mainSocket, (SOCKADDR *)& service, sizeof(service));
+	if (connected == SOCKET_ERROR)
 	{
 		printf("Failed to connect.\n");
 		WSACleanup();
 		return 1;
 	}
 
-	//
+		
+	//watki:
+	//nasluchuje wiadomosci od podlaczonych klientow
+	_beginthread(listenForMsg, 0, mainData);
 	
-	//watki
-	
-	_beginthread(listenForMsg, 0, buffer);										//nas³uchuje wiadomoœci od pod³¹czonych klientów
-	HANDLE watek = (HANDLE)_beginthread(sendMsg, 0, buffer);					//wysy³a wiadomoœæ do klientów
+	//wysylanie wiadomosci i obs³uga chatu
+	do {
+		std::cin.getline(mainData->buffer, 1000);
+		send(mainData->mainSocket, mainData->buffer, 1000, 0);
+	} while (*(mainData->buffer) != '#');
 
-	WaitForSingleObject(watek, INFINITE);										//dopoki klient nie zadecyduje o wylaczeniu, poprzez wyslanie '#'
-	
-	delete[] buffer;
-	buffer = 0;
+	std::cout << "Ending trasmission ... \n";
 
-	_getch();
-
+	//czyszczenie pamieci
+	delete mainData;
+	mainData = 0;
 
 	return 0;
 }

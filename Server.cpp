@@ -1,72 +1,38 @@
-#define WIN32_LEAN_AND_MEAN						//przy u¿yciu windows.h wyrzucamy windows socketes, by unikn¹æ k³ótni z winsock2
+#define WIN32_LEAN_AND_MEAN
 #define _WINSOCK_DEPRECATED_NO_WARNINGS 1
 
 #include <iostream>
-#include <process.h>							//dla w¹tków
-#include <winsock2.h>							//dla socketów + ws2_32.lib dodany do projektu
-#include <conio.h>								//dla getch()
+#include <process.h>
+#include <winsock2.h>
 
-SOCKET mainSocket;
 
-class sendFlag									//ustawia flagê podaj¹c¹, czy wywo³aæ w¹tek wysy³aj¹cy
-{												//utworzony dynamicznie bêdzie wspóldzielony miêdzy g³ównym w¹tkiem wysy³aj¹cym a nas³uchuj¹cym
-private:
-	bool toSend;								//jesli przyjdzie jakaœ wiadomoœæ, w¹tek nas³uchuj¹cy ustawi t¹ zmienn¹ na wartoœæ true
-public:											//a po wys³aniu do wszystkich wiadomoœci ustawi ponownie na false
-	sendFlag()
-		: toSend(false)
-	{
 
-	}
+class Data {
+public:
+	SOCKET mainSocket;
+	char buffer[1000];
 };
 
-void isSomeoneThere(void * Args)
-{
-	do {
-
-	} while (1);
-
-	_endthread();
-}
-
-void listenForMsg(void * buffer)
+void listenForMsg(void * mainData)
 {
 	do {
 		int bytesRecv = SOCKET_ERROR;
-		while (bytesRecv == SOCKET_ERROR)		//pêtla nas³uchuj¹ca wiadomoœci
+		Data *someData = reinterpret_cast<Data*>(mainData);
+		//petla nasluchujaca wiadomoœci
+		while (bytesRecv == SOCKET_ERROR)
 		{
-			bytesRecv = recv(mainSocket, reinterpret_cast<char*>(buffer), 1000, 0);
+			bytesRecv = recv(someData->mainSocket, someData->buffer, 1000, 0);
 		}
-		std::cout << "Client: " << reinterpret_cast<char*>(buffer) << "\n";	
-		Sleep(1000);
+		std::cout << "Client: " << someData->buffer << "\n";
 	} while (1);
 	
 	_endthread();
 }
 
-void sendMsg(void * buffer)
-{
-
-
-	do {
-		std::cin.getline(reinterpret_cast<char*>(buffer), 1000);
-		send(mainSocket, reinterpret_cast<char*>(buffer), 1000, 0);
-	} while (*reinterpret_cast<char*>(buffer) != '#');
-
-	std::cout << "Ending trasmission ... \n";
-
-
-	_endthread();
-}
 
 int main()
 {
-	
-
-
-	int buffsize = 1000;
-	char* buffer = new char[buffsize];										//bufor przetrzymuj¹cy wiadomoœæ
-
+	Data* mainData = new Data;
 	
 	//inicjalizacja winsocka
 	WSADATA wsaData;															
@@ -78,8 +44,8 @@ int main()
 	}
 
 	//inicjalizacja gniazda
-	mainSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);			
-	if (mainSocket == INVALID_SOCKET)
+	mainData->mainSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+	if (mainData->mainSocket == INVALID_SOCKET)
 	{
 		std::cout << "Error creating socket: %ld\n" << WSAGetLastError();
 		WSACleanup();
@@ -94,44 +60,49 @@ int main()
 	service.sin_port = htons(27015);
 
 	//bindowanie adresu i portu do gniazda
-	if (bind(mainSocket, (SOCKADDR *)& service, sizeof(service)) == SOCKET_ERROR)
+	int binding = bind(mainData->mainSocket, (SOCKADDR *)& service, sizeof(service));
+	if (binding == SOCKET_ERROR)
 	{
 		std::cout << "bind() failed.\n";
-		closesocket(mainSocket);
+		closesocket(mainData->mainSocket);
 		return 1;
 	}
 
-	//w³¹czenie funkcji nas³uchowej
-	if (listen(mainSocket, 1) == SOCKET_ERROR)
+	//wlaczenie funkcji nasluchowej
+	int listening = listen(mainData->mainSocket, 1);
+	if (listening == SOCKET_ERROR)
+	{
 		std::cout << "Error listening on socket.\n";
-
-	//pod³¹czenie klienta i nas³uchiwanie
+	}
+	
+	//podlaczenie klienta i nasluchiwanie
 	SOCKET acceptSocket = SOCKET_ERROR;
 	std::cout << "Waiting for a client to connect...\n";
 
 	while (acceptSocket == SOCKET_ERROR)
 	{
-		acceptSocket = accept(mainSocket, NULL, NULL);
+		acceptSocket = accept(mainData->mainSocket, NULL, NULL);
 	}
 
 	std::cout << "Client connected.\n";
-	mainSocket = acceptSocket;
+	mainData->mainSocket = acceptSocket;
 
-	//
 	
+	//watki:
+	//nasluchuje wiadomosci od podlaczonych klientow
+	_beginthread(listenForMsg, 0, mainData);
 
-	//watki
-	
-	_beginthread(isSomeoneThere, 0, NULL);									//w¹tek nas³uchuj¹cy nowych u¿ytkowników
-	_beginthread(listenForMsg, 0, buffer);									//nas³uchuje wiadomoœci od pod³¹czonych klientów
-	HANDLE watek = (HANDLE ) _beginthread(sendMsg, 0, buffer);				//wysy³a wiadomoœæ do klientów
+	//wysylanie wiadomosci i obs³uga chatu
+	do {
+		std::cin.getline(mainData->buffer, 1000);
+		send(mainData->mainSocket, mainData->buffer, 1000, 0);
+	} while (*(mainData->buffer) != '#');
 
-	WaitForSingleObject(watek, INFINITE);									//dopoki serwer nie zadecyduje o wylaczeniu, poprzez wyslanie '#'
+	std::cout << "Ending trasmission ... \n";
 
-	delete[] buffer;
-	buffer = 0;
-
-	_getch();
+	//czyszczenie pamieci
+	delete mainData;
+	mainData = 0;
 
 	return 0;
 }
