@@ -11,6 +11,11 @@ class Data {
 public:
 	SOCKET mainSocket;
 	char buffer[1000];
+	bool isEnd;
+
+	Data() : isEnd(false)
+	{
+	}
 };
 
 //klasa dla funkcji inicjalizuj¹cych i obslugujacych gniazda
@@ -104,39 +109,54 @@ void Server::clientInit()
 		acceptSocket = accept(mainData->mainSocket, NULL, NULL);
 	}
 
-	std::cout << "Klient podlaczony.\n";
+	std::cout << "Klient podlaczony.\nNacisnij Esc by wyjsc z programu.\n";
 	mainData->mainSocket = acceptSocket;
 }
 
 void listenForMsg(void * mainData)
 {
+	Data *someData = reinterpret_cast<Data*>(mainData);
 	do {
 		int bytesRecv = SOCKET_ERROR;
-		Data *someData = reinterpret_cast<Data*>(mainData);
 		//petla nasluchujaca wiadomoœci
 		while (bytesRecv == SOCKET_ERROR)
 		{
 			bytesRecv = recv(someData->mainSocket, someData->buffer, 1000, 0);
 		}
 		std::cout << "Klient: " << someData->buffer << "\n";
-	} while (1);
+	} while (someData->isEnd == false);
 	
 	_endthread();
 }
+
+void waitForEsc(void * mainData)
+{
+	Data *someData = reinterpret_cast<Data*>(mainData);
+	while (true)
+	{
+		if (GetAsyncKeyState(VK_ESCAPE))
+		{
+			someData->isEnd = true;
+			std::cout << "Nacisnij Enter, aby wyjsc z programu.\n";
+			_endthread();
+		}
+	}
+}
+
 
 void sendMsg(Data *mainData)
 {
 	do {
 		std::cin.getline(mainData->buffer, 1000);
 		send(mainData->mainSocket, mainData->buffer, 1000, 0);
-	} while (*(mainData->buffer) != '#');
+	} while (mainData->isEnd == false);
 
 	std::cout << "Koniec transmisji.\n";
 }
 
 int main()
 {
-	Data* mainData = new Data;
+	Data *mainData = new Data;
 	
 	Server server(mainData);
 
@@ -151,6 +171,8 @@ int main()
 	//watki:
 	//nasluchuje wiadomosci od podlaczonych klientow
 	_beginthread(listenForMsg, 0, mainData);
+
+	_beginthread(waitForEsc, 0, mainData);
 
 	//wysylanie wiadomosci i obs³uga chatu
 	sendMsg(mainData);

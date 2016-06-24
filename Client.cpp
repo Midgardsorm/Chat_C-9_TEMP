@@ -4,6 +4,7 @@
 #include <iostream>
 #include <process.h>
 #include <winsock2.h>
+#include <Windows.h>
 
 
 //klasa zawierajπca dane przesy≥ane do watkow przez wskaünik
@@ -11,6 +12,11 @@ class Data {
 public:
 	SOCKET mainSocket;
 	char buffer[1000];
+	bool isEnd;
+
+	Data() : isEnd(false)
+	{
+	}
 };
 
 //klasa dla funkcji inicjalizujπcych i obslugujacych gniazda
@@ -78,23 +84,38 @@ int Client::serverConnect()
 		WSACleanup();
 		return 1;
 	}
+std::cout << "Podlaczenie do serwera udane.\nNacisnij Esc aby zakonczyc program.\n";
 	return 0;
 }
 
 void listenForMsg(void * mainData)
 {
+	Data *someData = reinterpret_cast<Data*>(mainData);
 	do {
 		int bytesRecv = SOCKET_ERROR;
-		Data *someData = reinterpret_cast<Data*>(mainData);
 		//petla nasluchujaca wiadomoúci
 		while (bytesRecv == SOCKET_ERROR)
 		{
 			bytesRecv = recv(someData->mainSocket, someData->buffer, 1000, 0);
 		}
 		std::cout << "Serwer: " << someData->buffer << "\n";
-	} while (1);
+	} while (someData->isEnd == false);
 
 	_endthread();
+}
+
+void waitForEsc(void * mainData)
+{
+	Data *someData = reinterpret_cast<Data*>(mainData);
+	while (true)
+	{
+		if (GetAsyncKeyState(VK_ESCAPE))
+		{
+			someData->isEnd = true;
+			std::cout << "Nacisnij Enter, aby wyjsc z programu.\n";
+			_endthread();
+		}
+	}
 }
 
 void sendMsg(Data *mainData)
@@ -102,14 +123,16 @@ void sendMsg(Data *mainData)
 	do {
 		std::cin.getline(mainData->buffer, 1000);
 		send(mainData->mainSocket, mainData->buffer, 1000, 0);
-	} while (*(mainData->buffer) != '#');
+	} while (mainData->isEnd == false);
 
 	std::cout << "Koniec transmisji.\n";
 }
 
+
+
 int main()
 {
-	Data* mainData = new Data;
+	Data *mainData = new Data;
 	
 	Client client(mainData);
 
@@ -123,6 +146,8 @@ int main()
 	//nasluchuje wiadomosci od podlaczonych klientow
 	_beginthread(listenForMsg, 0, mainData);
 	
+	_beginthread(waitForEsc, 0, mainData);
+
 	//wysylanie wiadomosci i obs≥uga chatu
 	sendMsg(mainData);
 
@@ -130,5 +155,6 @@ int main()
 	delete mainData;
 	mainData = 0;
 
+	
 	return 0;
 }
