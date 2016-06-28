@@ -11,7 +11,7 @@
 class Data {
 public:
 	SOCKET mainSocket;
-	char buffer[1000];
+	char buffer[1024];
 	bool isEnd;
 
 	Data() : isEnd(false)
