@@ -7,7 +7,7 @@
 #include <Windows.h>
 
 
-//klasa zawieraj¹ca dane przesy³ane do watkow przez wskaŸnik
+//klasa zawierajÂ¹ca dane przesyÂ³ane do watkow przez wskaÅ¸nik
 class Data {
 public:
 	SOCKET mainSocket;
@@ -19,7 +19,7 @@ public:
 	}
 };
 
-//klasa dla funkcji inicjalizuj¹cych i obslugujacych gniazda
+//klasa dla funkcji inicjalizujÂ¹cych i obslugujacych gniazda
 class Client {
 private:
 	const char *m_ip;
@@ -49,7 +49,7 @@ int Client::winsockInit()
 	int result = WSAStartup(MAKEWORD(2, 2), &m_wsaData);
 	if (result != NO_ERROR)
 	{
-		std::cout << "Nie mo¿na zainicjowac gniazda.";
+		std::cout << "Nie moÂ¿na zainicjowac gniazda.";
 		return 1;
 	}
 	return 0;
@@ -93,7 +93,7 @@ void listenForMsg(void * mainData)
 	Data *someData = reinterpret_cast<Data*>(mainData);
 	do {
 		int bytesRecv = SOCKET_ERROR;
-		//petla nasluchujaca wiadomoœci
+		//petla nasluchujaca wiadomoÅ“ci
 		while (bytesRecv == SOCKET_ERROR)
 		{
 			bytesRecv = recv(someData->mainSocket, someData->buffer, 1000, 0);
@@ -148,7 +148,7 @@ int main()
 	
 	_beginthread(waitForEsc, 0, mainData);
 
-	//wysylanie wiadomosci i obs³uga chatu
+	//wysylanie wiadomosci i obsÂ³uga chatu
 	sendMsg(mainData);
 
 	//czyszczenie pamieci
