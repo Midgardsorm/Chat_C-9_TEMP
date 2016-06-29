@@ -5,3 +5,11 @@ Jeśli to połączenie na innym gnieździe niż główne, to jest to wiadomość
 
 Klient działa na dwóch wątkach. Jeden nasłuchujący wiadomości przychodzącej, i drugi czekający na mozliwość wysłania.
 
+Nadchodzące zmiany:
+
+1.0 działający serwer na jednym wątku
+1.1 możliwość przesyłania plików
+2.0 obsługa wielu wątków
+2.1 możliwość logowania się
+2.1 obsługa bazy danych
+3.0 wersja okienkowa
