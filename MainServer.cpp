@@ -13,7 +13,7 @@ int isSocket(SOCKET socket)
 {
 	if (socket < 0)
 	{
-		std::cout << "B³ad funkcji akceptuj¹cej.\n";
+		std::cout << "BÂ³ad funkcji akceptujÂ¹cej.\n";
 		return 1;
 	}
 	return 0;
@@ -34,7 +34,7 @@ public:
 	{
 		m_buffer = new char[m_buffsize + 1];
 
-		//ustawienie czystej listy socketów
+		//ustawienie czystej listy socketÃ³w
 		for (m_i = 0; m_i < 30; m_i++)
 		{
 			m_client_socket[m_i] = 0;
@@ -141,7 +141,7 @@ void Data::setFD()
 int Data::isSmthActive() 
 {
 
-	//czeka na aktywnoœæ w nieskoñczonoœæ - pi¹te null
+	//czeka na aktywnoÅ“Ã¦ w nieskoÃ±czonoÅ“Ã¦ - piÂ¹te null
 	m_activity = select(0, &m_fdset_socket, NULL, NULL, NULL);
 
 	if (m_activity == SOCKET_ERROR)
@@ -186,11 +186,11 @@ void Data::isNewConnection()
 
 		isSocket(m_new_socket);
 		
-		//wyœwietlenie danych podlaczenia
+		//wyÅ“wietlenie danych podlaczenia
 		std::cout << "Nowe polaczenie: " << m_new_socket << ", adres ip : " 
 			<< inet_ntoa(m_address.sin_addr) << ", port : " << ntohs(m_address.sin_port) << "\n";
 
-		//wysy³anie wiadomoœci próbnej
+		//wysyÂ³anie wiadomoÅ“ci prÃ³bnej
 		this->sendMsg();
 
 		//dodawanie gniazda
