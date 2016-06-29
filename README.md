@@ -8,8 +8,14 @@ Klient działa na dwóch wątkach. Jeden nasłuchujący wiadomości przychodząc
 Nadchodzące zmiany:
 
 1.0 działający serwer na jednym wątku
+
 1.1 możliwość przesyłania plików
+
 2.0 obsługa wielu wątków
+
 2.1 możliwość logowania się
+
 2.1 obsługa bazy danych
+
 3.0 wersja okienkowa
+
