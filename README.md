@@ -12,9 +12,11 @@ Klient działa na dwóch wątkach. Jeden nasłuchujący wiadomości przychodząc
 
 Nadchodzące zmiany:
 
-1.0 działający serwer na jednym wątku
+1.0 działający serwer na jednym wątku (Zrobione)
 
 1.1 możliwość przesyłania plików
+
+1.2 testy jednostkowe
 
 2.0 obsługa wielu wątków
 
