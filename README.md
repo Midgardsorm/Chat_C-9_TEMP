@@ -1,4 +1,4 @@
-# Chat_v.1.0
+# Small_Global_Chat_v.1.0
 
 Serwer: MainServer.cpp
 
