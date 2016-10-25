@@ -4,7 +4,7 @@ Serwer: MainServer.cpp
 
 Client: TempClient.cpp (Soon to be merged with Server)
 
-Global chat, works on one process (other one is only for waiting for ESC key to terminate application). The technology called here is called asynchronous socket programming. What it does is basically, that it waits for activity on socket within the table ("select()" function). is there is incoming message, FD_ISSET checks if this is activity:
+Global chat, works on one process (other one is only for waiting for ESC key to terminate application). The technology called here is called asynchronous socket programming. What it basically does, is that it waits for activity on socket within the table ("select()" function), and if something is recived, FD_ISSET checks if this is activity:
 
 - on main socket, this means, that it's new Client and he is assign to table m_client_socket[]
 
@@ -19,4 +19,4 @@ Incoming
 
 Next step will be to add possibility for saving log to a file, adding database with users and allowing them to login with unique handles and passwords. 
 
-Of course only after cleaning code and combining client and server into one app, with possibility to choose IP of server by user.   
+Of course only after cleaning code and combining client and server into one app, with possibility to choose IP of server by user (now it's hardcoded).   
