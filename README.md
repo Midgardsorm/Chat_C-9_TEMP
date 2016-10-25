@@ -12,7 +12,7 @@ Global chat, works on one process (other one is only for waiting for ESC key to 
 
 For entire time on server console there is displayed real-time log.
 
-This is strictly global chat, to be used for small chats with very limited number of user, and as that, it is very fast and do not need thread pool - this solution will not be efficient, if you will want to add many users, or possiblity of private conversations. But it is not intend for that. 
+This is strictly global chat, to be used for small chats with very limited number of user, and as that, it is very fast and do not need thread pool - this solution will not be efficient, if you want to add many users, or possiblity of private conversations. But it is not intend for that. 
 
 ----------------------------------
 Incoming
