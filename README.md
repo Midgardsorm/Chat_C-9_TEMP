@@ -2,27 +2,21 @@
 
 Serwer: MainServer.cpp
 
-Klient: TempClient.cpp
+Client: TempClient.cpp (Soon to be merged with Server)
 
-Czat zapętlony na głównym wątku. 
-Odczytuje zmiany na zestawie gniazd, jeśli połączenie jest na głównym gnieździe, to jest to nowe połączenie i zostaje mu przypisane nowe gniazdo.
-Jeśli to połączenie na innym gnieździe niż główne, to jest to wiadomość, która zostaje nadana do pozostałych podłączonych klientów.
+Global chat, works on one process (other one is only for waiting for ESC key to terminate application). The technology called here is called asynchronous socket programming. What it does is basically, that it waits for activity on socket within the table ("select()" function). is there is incoming message, FD_ISSET checks if this is activity:
 
-Klient działa na dwóch wątkach. Jeden nasłuchujący wiadomości przychodzącej, i drugi czekający na mozliwość wysłania.
+- on main socket, this means, that it's new Client and he is assign to table m_client_socket[]
 
-Nadchodzące zmiany:
+- if activity is not on the main socket - that means, that this is incoming message, in that case, message is forwarded to all other connected clients
 
-1.0 działający serwer na jednym wątku (Zrobione)
+For entire time on server console there is displayed real-time log.
 
-1.1 możliwość przesyłania plików
+This is strictly global chat, to be used for small chats with very limited number of user, and as that, it is very fast and do not need thread pool - this solution will not be efficient, if you will want to add many users, or possiblity of private conversations. But it is not intend for that. 
 
-1.2 testy jednostkowe
+----------------------------------
+Incoming
 
-2.0 obsługa wielu wątków
+Next step will be to add possibility for saving log to a file, adding database with users and allowing them to login with unique handles and passwords. 
 
-2.1 możliwość logowania się
-
-2.1 obsługa bazy danych
-
-3.0 wersja okienkowa
-
+Of course only after cleaning code and combining client and server into one app, with possibility to choose IP of server by user.   
