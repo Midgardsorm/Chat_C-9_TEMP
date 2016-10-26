@@ -18,7 +18,7 @@ private:
 	sockaddr_in m_server, m_address;
 	int m_max_clients, m_activity, m_addrlen, m_read_value, m_buffsize, m_port, m_i;
 	char *m_message, *m_buffer;
-	fd_set m_fdset_socket; //zestaw socketow
+	fd_set m_fdset_socket; //socket table
 public:
 	Data();
 
