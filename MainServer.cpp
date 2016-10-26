@@ -30,10 +30,9 @@ int main()
 
 		chat.isSmthActive();
 
-		//sprawdza czy to nowe polaczenie
 		chat.isNewConnection();
 			
-		//jesli nie, to znaczy ze to przychodzaca wiadomosc od podlaczonego klienta
+		//if it's not a new connection, then it must be message from connected client
 		chat.msgExchange();
 		
 	}
