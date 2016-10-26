@@ -6,7 +6,7 @@ Client: TempClient.cpp (Soon to be merged with Server)
 
 Global chat, works on one process (other one is only for waiting for ESC key to terminate application). The technology called here is called asynchronous socket programming. What it basically does, is that it waits for activity on socket within the table ("select()" function), and if something is received, FD_ISSET checks if this is activity:
 
-- on main socket, this means, that it's new Client and he is assign to table m_client_socket[]
+- on main socket, this means, that it's new Client and he is assign to clients sockets table 
 
 - if activity is not on the main socket - that means, that this is incoming message, in that case, message is forwarded to all other connected clients
 
