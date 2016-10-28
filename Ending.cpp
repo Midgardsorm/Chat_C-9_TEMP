@@ -4,7 +4,7 @@ Ending::Ending() : isEnd(false)
 {
 }
 
-//when you put waitForEsc into _behinthread, you can pass one argument 
+//when you put waitForEsc into _beginthread, you can pass an argument 
 //for function, and it need to be void pointer, thus waitForEsc(void * arg) 
 void waitForEsc(void * mainEnding)
 {
