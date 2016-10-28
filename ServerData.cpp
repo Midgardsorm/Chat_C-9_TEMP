@@ -2,11 +2,11 @@
 
 Data::Data()
 	: m_buffsize(1024), m_max_clients(30), m_addrlen(sizeof(struct sockaddr_in)), m_port(27015),
-	m_message("Chat v.1.0 (Z pomoca asynchronicznego programowania gniazd)  \r\n")
+	m_message("Small Global Chat v1.0)  \r\n")
 {
 	m_buffer = new char[m_buffsize + 1];
 
-	//ustawienie czystej listy socketów
+	//creating empty socket table
 	for (m_i = 0; m_i < 30; m_i++)
 	{
 		m_client_socket[m_i] = 0;
@@ -19,27 +19,28 @@ Data::~Data()
 
 int Data::winsockInit()
 {
-	std::cout << m_message << "\nInicjalizacja Winsocka";
+	std::cout << m_message << "\nWinsock initialization: ";
 	int result = WSAStartup(MAKEWORD(2, 2), &m_wsa);
 	if (result != NO_ERROR)
 	{
-		std::cout << "Nie mozna zainicjowac gniazda.";
+		std::cout << "Cannot initialize.";
 		return 1;
 	}
-	std::cout << "Inicjalizacja udana\n";
+	std::cout << "Done\n";
 	return 0;
 }
 
 int Data::socketInit()
-{
+{	
+	std::cout << m_message << "\nSocket function initialization: ";
 	m_main_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (m_main_socket == INVALID_SOCKET)
 	{
-		std::cout << "Blad przy tworzeniu gniazda: \n" << WSAGetLastError();
+		std::cout << "Cannot initialize.: \n" << WSAGetLastError();
 		WSACleanup();
 		return 1;
 	}
-	std::cout << "Gniazdo utworzone.\n";
+	std::cout << "Done.\n";
 	return 0;
 }
 
@@ -52,39 +53,41 @@ void Data::adressInit()
 }
 
 int Data::bindInit()
-{
+{	
+	std::cout << m_message << "Binding adress: ";
 	int binding = bind(m_main_socket, (SOCKADDR *)& m_server, sizeof(m_server));
 	if (binding == SOCKET_ERROR)
 	{
-		std::cout << "Przypisanie adresu bind() nieudane.\n";
+		std::cout << "Fail.\n";
 		closesocket(m_main_socket);
 		return 1;
 	}
-	std::cout << "Przypisanie adresu bind() udane.\n";
+	std::cout << "Done.\n";
 	return 0;
 }
 
 void Data::listenInit()
 {
+	std::cout << m_message << "Ongoing listetning for incoming connectons: ";
 	int listening = listen(m_main_socket, 5);
 	if (listening == SOCKET_ERROR)
 	{
-		std::cout << "Blad nasluchu na gniezdzie.\n";
+		std::cout << "Error.\n";
 	}
-	std::cout << "Oczekiwanie na polaczenia przychodzace \n";
+	std::cout << "Initialized. \n";
 }
 
-//dodawanie socketow do zestawu m_fdset_socket (typ fd_set)
-//fd_set uzywane bedzie przez funkcje select()
+//adding sockets to m_fdset_socket (typ fd_set)
+//fd_set will be used by select()
 void Data::setFD()
 {
 
 	FD_ZERO(&m_fdset_socket);
 
-	//dodaje glowny socket do zestawu m_fdset_socket
+	//adding main socket to socket table
 	FD_SET(m_main_socket, &m_fdset_socket);
 
-	//dodaje sockety dla klientow do zestawu m_fdset_socket
+	//adding existing client connections to socket table
 	for (m_i = 0; m_i < m_max_clients; m_i++)
 	{
 		m_tmp_socket = m_client_socket[m_i];
@@ -98,12 +101,12 @@ void Data::setFD()
 int Data::isSmthActive()
 {
 
-	//czeka na aktywnoœæ w nieskoñczonoœæ - pi¹te null
+	//select waits for incoming connections (fifth NULL means, that it will wait forever :)  
 	m_activity = select(0, &m_fdset_socket, NULL, NULL, NULL);
 
 	if (m_activity == SOCKET_ERROR)
 	{
-		std::cout << "Error funkcji select: " << WSAGetLastError();
+		std::cout << "Error on select function: " << WSAGetLastError();
 		return 1;
 	}
 	return 0;
@@ -117,14 +120,13 @@ void Data::isNewConnection()
 
 		isSocket(m_new_socket);
 
-		//wyœwietlenie danych podlaczenia
-		std::cout << "Nowe polaczenie: " << m_new_socket << ", adres ip : "
+		//Displaying new connection on log console:
+		std::cout << "New connection: " << m_new_socket << ", ip address : "
 			<< inet_ntoa(m_address.sin_addr) << ", port : " << ntohs(m_address.sin_port) << "\n";
 
-		//wysy³anie wiadomoœci próbnej
+		//sending testing message
 		this->sendMsg();
 
-		//dodawanie gniazda
 		this->addSocket();
 
 	}
@@ -132,14 +134,15 @@ void Data::isNewConnection()
 
 int Data::sendMsg()
 {
+	std::cout << m_message << "Sending testing message: ";
 	int sending = send(m_new_socket, m_message, strlen(m_message), 0);
 	if (sending != strlen(m_message))
 	{
-		std::cout << "Wysylanie nie powiodlo sie";
+		std::cout << "Failed.";
 		return 1;
 	}
 
-	std::cout << "Probne wysylanie udane\n";
+	std::cout << "Success.\n";
 	return 0;
 }
 
@@ -150,7 +153,7 @@ void Data::addSocket()
 		if (m_client_socket[m_i] == 0)
 		{
 			m_client_socket[m_i] = m_new_socket;
-			std::cout << "Dodano do tabeli gniazd pod numerem: " << m_i << "\n";
+			std::cout << "Connection added to socket table with id: " << m_i << "\n";
 			break;
 		}
 	}
