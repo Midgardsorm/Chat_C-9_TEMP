@@ -32,7 +32,7 @@ int Data::winsockInit()
 
 int Data::socketInit()
 {	
-	std::cout << m_message << "\nSocket function initialization: ";
+	std::cout << m_message << "Socket function initialization: ";
 	m_main_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (m_main_socket == INVALID_SOCKET)
 	{
