@@ -101,7 +101,7 @@ void Data::setFD()
 int Data::isSmthActive()
 {
 
-	//select waits for incoming connections (fifth NULL means, that it will wait forever :)  
+	//select function  waits for incoming connections (fifth NULL means, that it will wait forever :)  
 	m_activity = select(0, &m_fdset_socket, NULL, NULL, NULL);
 
 	if (m_activity == SOCKET_ERROR)
@@ -120,7 +120,7 @@ void Data::isNewConnection()
 
 		isSocket(m_new_socket);
 
-		//Displaying new connection on log console:
+		//displaying new connection on log console:
 		std::cout << "New connection: " << m_new_socket << ", ip address : "
 			<< inet_ntoa(m_address.sin_addr) << ", port : " << ntohs(m_address.sin_port) << "\n";
 
@@ -165,13 +165,13 @@ void Data::msgExchange()
 	{
 		m_tmp_socket = m_client_socket[m_i];
 
-		//jesli klient jest dodany           
+		//if client is in table           
 		if (FD_ISSET(m_tmp_socket, &m_fdset_socket))
 		{
-			//pobiera dane od obiektu przychodzacego i przypisuje do m_adress
+			//taking adress of incoming source of message
 			getpeername(m_tmp_socket, (struct sockaddr*)&m_address, (int*)&m_addrlen);
 
-			//odczytanie przychodzacego sygnalu
+			//reading incoming message
 			m_read_value = recv(m_tmp_socket, m_buffer, m_buffsize, 0);
 
 
@@ -179,11 +179,11 @@ void Data::msgExchange()
 			{
 				int error_code = WSAGetLastError();
 
-				//jesli ktos sie odlaczyl
+				//if someone disconnected
 				if (error_code == WSAECONNRESET)
 				{
 
-					std::cout << "Klient odlaczyl sie , adres ip " << inet_ntoa(m_address.sin_addr)
+					std::cout << "Client disconnected: ip adress: " << inet_ntoa(m_address.sin_addr)
 						<< ", port " << ntohs(m_address.sin_port) << "\n";
 
 
@@ -192,12 +192,12 @@ void Data::msgExchange()
 				}
 				else
 				{
-					std::cout << "Blad podczas odbierania : " << error_code;
+					std::cout << "Error with reading/receaving message: " << error_code;
 				}
 			}
 			if (m_read_value == 0)
 			{
-				std::cout << "Klient odlaczony , adres ip " << inet_ntoa(m_address.sin_addr)
+				std::cout << "Client disconnected: ip adress: " << inet_ntoa(m_address.sin_addr)
 					<< ", port " << ntohs(m_address.sin_port) << "\n";
 
 				closesocket(m_tmp_socket);
@@ -211,9 +211,9 @@ void Data::msgExchange()
 
 void Data::broadcastMsg()
 {
-	//wypisuje wiadomosc na oknie serwera
+	//writing message in log console
 	std::cout << inet_ntoa(m_address.sin_addr) << ":" << ntohs(m_address.sin_port) << " : " << m_buffer << "\n";
-	//wysyla do wszystkich poza klientem ktory jest autorem wiadomosci
+	//sending message to all connected clients, besides sender
 	for (m_i = 0; m_i < m_max_clients; m_i++)
 	{
 		if (m_client_socket[m_i] != m_tmp_socket)
