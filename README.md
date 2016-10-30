@@ -1,8 +1,8 @@
 # Small_Global_Chat_v.1.0
 
-Serwer: MainServer.cpp
+Serwer: Server.cpp
 
-Client: TempClient.cpp (Soon to be merged with Server)
+Client: Will be integrateded into the server.
 
 Global chat, works on one process (other one is only for waiting for ESC key to terminate application). The technology called here is called asynchronous socket programming. What it basically does, is that it waits for activity on socket within the table ("select()" function), and if something is received, FD_ISSET checks if this is activity:
 
