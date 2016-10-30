@@ -7,9 +7,9 @@
 #include "stdlib.h"
 #include <process.h>
 #include <Windows.h>
-#include "functions.h"
-#include "Ending.h"
-#include "ServerData.h"
+#include "chat_data/functions.h"
+#include "chat_data/Ending.h"
+#include "chat_data/ServerData.h"
 
 int main()
 {
@@ -31,10 +31,10 @@ int main()
 		chat.isSmthActive();
 
 		chat.isNewConnection();
-			
+
 		//if it's not a new connection, then it must be message from connected client
 		chat.msgExchange();
-		
+
 	}
 
 	closesocket(chat.getSocket());

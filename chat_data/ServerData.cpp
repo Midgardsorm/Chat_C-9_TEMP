@@ -2,7 +2,7 @@
 
 Data::Data()
 	: m_buffsize(1024), m_max_clients(30), m_addrlen(sizeof(struct sockaddr_in)), m_port(27015),
-	m_message("Small Global Chat v1.0)  \r\n")
+	m_message("Small Global Chat v1.0  \r\n")
 {
 	m_buffer = new char[m_buffsize + 1];
 
@@ -19,7 +19,7 @@ Data::~Data()
 
 int Data::winsockInit()
 {
-	std::cout << m_message << "\nWinsock initialization: ";
+	std::cout << m_message << "\nWinsock initialization...................................";
 	int result = WSAStartup(MAKEWORD(2, 2), &m_wsa);
 	if (result != NO_ERROR)
 	{
@@ -31,8 +31,8 @@ int Data::winsockInit()
 }
 
 int Data::socketInit()
-{	
-	std::cout << m_message << "Socket function initialization: ";
+{
+	std::cout << "Socket function initialization...........................";
 	m_main_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (m_main_socket == INVALID_SOCKET)
 	{
@@ -53,8 +53,8 @@ void Data::adressInit()
 }
 
 int Data::bindInit()
-{	
-	std::cout << m_message << "Binding adress: ";
+{
+	std::cout << "Binding adress...........................................";
 	int binding = bind(m_main_socket, (SOCKADDR *)& m_server, sizeof(m_server));
 	if (binding == SOCKET_ERROR)
 	{
@@ -68,7 +68,7 @@ int Data::bindInit()
 
 void Data::listenInit()
 {
-	std::cout << m_message << "Ongoing listetning for incoming connectons: ";
+	std::cout << "Ongoing listetning for incoming connectons...............";
 	int listening = listen(m_main_socket, 5);
 	if (listening == SOCKET_ERROR)
 	{
@@ -134,7 +134,7 @@ void Data::isNewConnection()
 
 int Data::sendMsg()
 {
-	std::cout << m_message << "Sending testing message: ";
+	std::cout << "Sending testing message: ";
 	int sending = send(m_new_socket, m_message, strlen(m_message), 0);
 	if (sending != strlen(m_message))
 	{

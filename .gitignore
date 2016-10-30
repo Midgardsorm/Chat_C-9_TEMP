@@ -272,6 +272,4 @@ __pycache__/
 # tools/
 
 
-#added by me:
-*.vcxproj
-*.filters
+
