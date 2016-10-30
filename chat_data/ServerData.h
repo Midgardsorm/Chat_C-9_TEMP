@@ -13,12 +13,12 @@
 
 class Data {
 private:
-	WSADATA m_wsa;
-	SOCKET m_main_socket, m_new_socket, m_client_socket[30], m_tmp_socket;
-	sockaddr_in m_server, m_address;
-	int m_max_clients, m_activity, m_addrlen, m_read_value, m_buffsize, m_port, m_i;
-	char *m_message, *m_buffer;
-	fd_set m_fdset_socket; //socket table
+	WSADATA wsa;
+	SOCKET main_socket, new_socket, client_socket[30], tmp_socket;
+	sockaddr_in server, address;
+	int max_clients, activity, addrlen, read_value, buffsize, port, i;
+	char *message, *buffer;
+	fd_set fdset_socket; //socket table
 public:
 	Data();
 
