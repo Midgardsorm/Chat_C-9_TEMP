@@ -15,6 +15,7 @@ Data::Data()
 
 Data::~Data()
 {
+	delete buffer;
 }
 
 int Data::winsockInit()
